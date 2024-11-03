@@ -1,16 +1,14 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import App from "./App";
 import "./index.css";
-
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import HomePage from "./pages/HomePage.tsx";
-import NotFoundPage from "./pages/NotFoundPage.tsx";
-import ProfilesPage from "./pages/ProfilesPage.tsx";
-import ProfilePage from "./pages/ProfilePage.tsx";
-import GamePage from "./pages/GamePage.tsx";
-import VideoCallPage from "./pages/VideoCallPage.tsx";
-import { MediaStreamProvider } from "./hooks/useMediaStream.tsx";
+import { MediaStreamProvider } from "./hooks/useMediaStream";
+import NotFoundPage from "./pages/NotFoundPage";
+import ProfilesPage from "./pages/ProfilesPage";
+import ProfilePage from "./pages/ProfilePage";
+import GamePage from "./pages/GamePage";
+import VideoCallPage from "./pages/VideoCallPage";
 
 const router = createBrowserRouter([
   {
