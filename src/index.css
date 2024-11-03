@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+
+@import "tailwindcss/components";
+
+@import "tailwindcss/utilities";
 
 html {
   box-sizing: border-box;
@@ -384,3 +386,4 @@ i {
   justify-content: center;
   width: 100%;
 }
+

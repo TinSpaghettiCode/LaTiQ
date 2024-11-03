@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FaVideo,
   FaMicrophone,
@@ -12,12 +12,22 @@ import {
   FaSmile,
 } from "react-icons/fa";
 import { BsChatDots, BsPeopleFill } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
+import { useMediaStream } from "@/hooks/useMediaStream";
 
 export default function GamePage() {
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMicOn, setIsMicOn] = useState(false);
   const [selectedTool, setSelectedTool] = useState("pencil");
   const [color, setColor] = useState("#000000");
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const navigate = useNavigate();
+
+  /* Setup Media Stream */
+  const { setMediaStream } = useMediaStream();
+
+  console.log(setMediaStream, "Media Stream");
 
   const players = [
     {
@@ -67,10 +77,38 @@ export default function GamePage() {
   const toggleCamera = () => setIsCameraOn(!isCameraOn);
   const toggleMic = () => setIsMicOn(!isMicOn);
 
+  useEffect(() => {
+    if (isCameraOn) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          streamRef.current = stream;
+          videoRefs.current.forEach((videoRef) => {
+            if (videoRef) {
+              videoRef.srcObject = stream;
+            }
+          });
+        })
+        .catch((err) => {
+          console.error("Error accessing camera: ", err);
+        });
+    } else {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+      videoRefs.current.forEach((videoRef) => {
+        if (videoRef) {
+          videoRef.srcObject = null;
+        }
+      });
+    }
+  }, [isCameraOn]);
+
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-100 overflow-y-auto scrollbar-hide">
       <header className="bg-blue-500 text-white p-4 rounded-b-xl">
-        <h1 className="text-2xl font-bold text-center">Sketch Talk</h1>
+        <h1 className="text-2xl font-bold text-center">LaTiQ</h1>
       </header>
       <main className="flex-grow flex flex-col md:flex-row p-4 space-y-4 md:space-y-0 md:space-x-4 overflow-hidden">
         <div className="flex-grow flex flex-col space-y-4 md:w-3/4">
@@ -143,16 +181,33 @@ export default function GamePage() {
           >
             <h2 className="text-xl font-semibold mb-4">Players</h2>
             <div className="grid grid-cols-2 gap-4">
-              {players.map((player) => (
+              {players.map((player, index) => (
                 <div
                   key={player.id}
-                  className="flex flex-col items-center hover:bg-gray-200 p-2 rounded-lg"
+                  className="relative flex flex-col items-center hover:bg-gray-200 p-2 rounded-lg cursor-pointer"
+                  onClick={() =>
+                    navigate(`/video/${player.id}`, {
+                      state: {
+                        player,
+                        videoStream: videoRefs.current[index]?.srcObject,
+                      },
+                    })
+                  }
                 >
-                  <img
-                    src={player.avatar}
-                    alt={player.name}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
+                  {isCameraOn ? (
+                    <video
+                      ref={(el) => (videoRefs.current[index] = el)}
+                      autoPlay
+                      className="w-16 h-16 rounded-full object-cover"
+                      onClick={(e) => e.stopPropagation()} // Prevent click event from propagating
+                    />
+                  ) : (
+                    <img
+                      src={player.avatar}
+                      alt={player.name}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  )}
                   <span className="mt-2 text-sm font-medium">
                     {player.name}
                   </span>

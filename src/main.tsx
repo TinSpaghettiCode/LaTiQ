@@ -9,6 +9,8 @@ import NotFoundPage from "./pages/NotFoundPage.tsx";
 import ProfilesPage from "./pages/ProfilesPage.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
 import GamePage from "./pages/GamePage.tsx";
+import VideoCallPage from "./pages/VideoCallPage.tsx";
+import { MediaStreamProvider } from "./hooks/useMediaStream.tsx";
 
 const router = createBrowserRouter([
   {
@@ -30,10 +32,16 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: "/video/:profileId",
+    element: <VideoCallPage />,
+  },
 ]);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <MediaStreamProvider>
+      <RouterProvider router={router} />
+    </MediaStreamProvider>
   </StrictMode>
 );
